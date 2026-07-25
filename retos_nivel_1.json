@@ -1,0 +1,112 @@
+[
+  {
+    "id": "RM_001",
+    "isla": "Reverse Mountain",
+    "titulo": "El Inventario Oculto",
+    "descripcion": "Describe por mensaje de voz, con el mayor detalle posible y en voz baja, exactamente qué ropa interior llevas puesta en este momento y cómo te la quitarías.",
+    "recompensa_berries": 30,
+    "recompensa_millas": 50,
+    "tiempo_limite_minutos": 10,
+    "tipo_validacion": "voz",
+    "tags": ["audio", "imaginacion", "calentamiento"]
+  },
+  {
+    "id": "LT_001",
+    "isla": "Loguetown",
+    "titulo": "Marcando Territorio",
+    "descripcion": "Tómate una foto enfocada únicamente en tus muslos, abdomen o cuello. Envíala con un texto diciendo exactamente dónde quieres que te bese primero cuando nos volvamos a ver.",
+    "recompensa_berries": 40,
+    "recompensa_millas": 80,
+    "tiempo_limite_minutos": 5,
+    "tipo_validacion": "foto",
+    "tags": ["visual", "provocacion", "sutil"]
+  },
+  {
+    "id": "WP_001",
+    "isla": "Whisky Peak",
+    "titulo": "Confesión Sin Censura",
+    "descripcion": "Escribe un párrafo detallando la fantasía más sucia o atrevida que has tenido conmigo últimamente. No te guardes ningún detalle, tienes 10 minutos para enviarlo.",
+    "recompensa_berries": 50,
+    "recompensa_millas": 100,
+    "tiempo_limite_minutos": 10,
+    "tipo_validacion": "texto",
+    "tags": ["texto", "erotismo", "mental"]
+  },
+  {
+    "id": "SK_001",
+    "isla": "Skypiea",
+    "titulo": "Juego de Sombras",
+    "descripcion": "Apaga las luces y deja solo una iluminación tenue. Tómate una foto en ropa interior (o menos) donde solo se aprecie tu silueta. Envíala para que la imaginación haga el resto.",
+    "recompensa_berries": 60,
+    "recompensa_millas": 150,
+    "tiempo_limite_minutos": 10,
+    "tipo_validacion": "foto",
+    "tags": ["visual", "silueta", "misterio"]
+  },
+  {
+    "id": "W7_001",
+    "isla": "Water 7",
+    "titulo": "El Choque Térmico",
+    "descripcion": "Toma un cubo de hielo (o agua muy fría), pásalo por tu cuello y pecho. Graba un audio de 15 segundos exactos capturando tu respiración y reacción, y envíalo.",
+    "recompensa_berries": 70,
+    "recompensa_millas": 180,
+    "tiempo_limite_minutos": 15,
+    "tipo_validacion": "audio",
+    "tags": ["sensorial", "voz", "atrevido"]
+  },
+  {
+    "id": "AL_001",
+    "isla": "Alabasta",
+    "titulo": "Espejismo en el Desierto",
+    "descripcion": "Tómate una foto completamente sin ropa, pero usa tus manos, sábanas o un ángulo estratégico para censurar exactamente lo esencial. Que se vea mucho, pero se esconda lo principal.",
+    "recompensa_berries": 80,
+    "recompensa_millas": 220,
+    "tiempo_limite_minutos": 10,
+    "tipo_validacion": "foto",
+    "tags": ["visual", "desnudo_parcial", "juego"]
+  },
+  {
+    "id": "SA_001",
+    "isla": "Sabaody",
+    "titulo": "La Orden del Dragón Celestial",
+    "descripcion": "Tienes el control total por los próximos 15 minutos. Escríbeme un mensaje ordenándome exactamente qué quieres que me haga a mí mismo/a y cómo quieres que te lo demuestre (audio o foto).",
+    "recompensa_berries": 100,
+    "recompensa_millas": 250,
+    "tiempo_limite_minutos": 15,
+    "tipo_validacion": "texto",
+    "tags": ["dominacion", "control", "distancia"]
+  },
+  {
+    "id": "FI_001",
+    "isla": "Fishman Island",
+    "titulo": "Bajo la Marea",
+    "descripcion": "Ve al baño, abre la ducha y envíame un video de 10 segundos de 'visualización única' mostrándome cómo el agua recorre tu cuerpo. Sin censura.",
+    "recompensa_berries": 120,
+    "recompensa_millas": 300,
+    "tiempo_limite_minutos": 15,
+    "tipo_validacion": "video_unico",
+    "tags": ["video", "explicito", "ducha"]
+  },
+  {
+    "id": "ID_001",
+    "isla": "Impel Down",
+    "titulo": "Condena de Nivel 6",
+    "descripcion": "El riesgo máximo. Graba un video o toma una foto altamente explícita tocándote mientras dices mi nombre. Debe enviarse como 'visualización única'. Tienes 20 minutos o habrá castigo.",
+    "recompensa_berries": 150,
+    "recompensa_millas": 400,
+    "tiempo_limite_minutos": 20,
+    "tipo_validacion": "multimedia_unica",
+    "tags": ["extremo", "explicito", "riesgo"]
+  },
+  {
+    "id": "RF_001",
+    "isla": "Raftel",
+    "titulo": "El Reencuentro",
+    "descripcion": "ESTE RETO SE GUARDA. Es un pacto para el día que nos veamos. Quien saque este reto elige qué vamos a hacer la primera noche juntos, y el otro tiene terminantemente prohibido decir que no. La sumisión es total.",
+    "recompensa_berries": 200,
+    "recompensa_millas": 500,
+    "tiempo_limite_minutos": 999,
+    "tipo_validacion": "promesa",
+    "tags": ["premio_final", "presencial", "sumision"]
+  }
+]
