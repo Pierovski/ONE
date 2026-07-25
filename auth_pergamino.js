@@ -1,4 +1,5 @@
 import { inicializarAudioSeguro, cambiarMusicaFondo, reproducirEfecto } from './audio_motor.js';
+import { asegurarDocumentoNube } from './firebase_motor.js'; // <-- Nube conectada
 
 const btnFirmar = document.getElementById('btn-firmar-pacto');
 const btnCache = document.getElementById('btn-limpiar-cache');
@@ -6,17 +7,26 @@ const pantallaPergamino = document.getElementById('pantalla-pergamino');
 const pantallaPersonajes = document.getElementById('pantalla-personajes');
 const pantallaJuego = document.getElementById('pantalla-juego');
 
-// --- LÓGICA DE FIRMA REAL EN EL CANVAS (Simplificada) ---
+// --- LÓGICA DE FIRMA REAL EN EL CANVAS ---
 const canvas = document.getElementById('lienzo-firma');
 const ctx = canvas ? canvas.getContext('2d') : null;
 let dibujando = false;
 let tieneFirma = false; 
 
 if (canvas) {
+    // Solución al lienzo borroso (Multiplicador de densidad de píxeles)
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    canvas.style.width = `${rect.width}px`;
+    canvas.style.height = `${rect.height}px`;
+
     const obtenerPosicion = (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-        const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+        const bounds = canvas.getBoundingClientRect();
+        const x = (e.clientX || (e.touches && e.touches[0].clientX)) - bounds.left;
+        const y = (e.clientY || (e.touches && e.touches[0].clientY)) - bounds.top;
         return { x, y };
     };
 
@@ -53,27 +63,31 @@ if (canvas) {
     canvas.addEventListener('touchmove', dibujar, { passive: false });
 }
 
-// --- LÓGICA DE NAVEGACIÓN ---
-document.addEventListener('DOMContentLoaded', () => {
+// --- LÓGICA DE NAVEGACIÓN Y NUBE ---
+document.addEventListener('DOMContentLoaded', async () => {
     if (localStorage.getItem('pactoFirmado') === 'true') {
         pantallaPergamino.style.display = 'none';
+        
+        // Inicializamos la nube silenciosamente en segundo plano
+        await asegurarDocumentoNube();
+
         if (localStorage.getItem('personajeTripulacion')) {
             pantallaJuego.style.display = 'block';
-            // Nota: La música necesita interacción para iniciar, 
-            // este reload síncrono podría no reproducirla.
         } else {
             pantallaPersonajes.style.display = 'block';
         }
     }
 });
 
-btnFirmar.addEventListener('click', () => {
+btnFirmar.addEventListener('click', async () => {
     if (!tieneFirma) {
         alert("Capitán, firme el lienzo para zarpar.");
         return;
     }
 
-    // Desbloqueo y cambio de música ambiental
+    // Inicializamos la base de datos al firmar por primera vez
+    await asegurarDocumentoNube();
+
     inicializarAudioSeguro();       
     cambiarMusicaFondo('mapa');     
     reproducirEfecto('sfx-pacto-firmado.mp3'); 

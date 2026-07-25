@@ -1,10 +1,12 @@
 import { reproducirEfecto } from './audio_motor.js';
+import { docPartida } from './firebase_motor.js';
+import { onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 const contenedorMapa = document.getElementById('contenedor-mapa');
 const hudInferior = document.querySelector('.hud-inferior');
 const rangoIslaTexto = document.querySelector('.rango-isla');
 
-// Levantamiento Topográfico (Coordenadas y Millas acumuladas necesarias)
+// Levantamiento Topográfico de Islas
 export const rutaIslas = [
     { nombre: "Reverse Mountain", top: "25%", left: "30%", millasRequeridas: 0 },
     { nombre: "Loguetown", top: "18%", left: "68%", millasRequeridas: 100 },
@@ -18,7 +20,8 @@ export const rutaIslas = [
     { nombre: "Raftel", top: "85%", left: "75%", millasRequeridas: 2800 }
 ];
 
-let indiceIslaActual = parseInt(localStorage.getItem('indiceIslaActual')) || 0;
+let indiceIslaActual = 0;
+let primeraCarga = true;
 
 export function inicializarMapa() {
     if (!contenedorMapa) return;
@@ -31,14 +34,10 @@ export function inicializarMapa() {
     barco.style.width = '45px';
     barco.style.height = '45px';
     barco.style.zIndex = '2';
-    // Inercia Náutica (Curva Bézier de 3 segundos para movimiento orgánico)
-    barco.style.transition = 'top 3s cubic-bezier(0.25, 1, 0.5, 1), left 3s cubic-bezier(0.25, 1, 0.5, 1)';
     barco.style.transform = 'translate(-50%, -50%)';
 
     barco.onerror = () => { barco.style.display = 'none'; };
     contenedorMapa.appendChild(barco);
-    
-    posicionarBarco(false);
 }
 
 export function posicionarBarco(animado = false) {
@@ -49,53 +48,69 @@ export function posicionarBarco(animado = false) {
     if (rangoIslaTexto) rangoIslaTexto.innerText = `Nivel: ${datosIsla.nombre}`;
 
     if (!animado) {
-        // Posicionamiento inmediato sin animación (al cargar la app)
         barco.style.transition = 'none';
         barco.style.top = datosIsla.top;
         barco.style.left = datosIsla.left;
         
-        // Devolvemos la capacidad de animar una fracción de segundo después
         setTimeout(() => {
             barco.style.transition = 'top 3s cubic-bezier(0.25, 1, 0.5, 1), left 3s cubic-bezier(0.25, 1, 0.5, 1)';
         }, 50);
     } else {
-        // Viaje animado
         barco.style.top = datosIsla.top;
         barco.style.left = datosIsla.left;
     }
 }
 
-export function intentarViajar(misMillasActuales) {
-    // Verificamos si hay una siguiente isla y si cumplimos la cuota de millas
-    const siguienteIsla = rutaIslas[indiceIslaActual + 1];
-    
-    if (siguienteIsla && misMillasActuales >= siguienteIsla.millasRequeridas) {
-        indiceIslaActual++;
-        localStorage.setItem('indiceIslaActual', indiceIslaActual);
-
-        // CINEMÁTICA: Bloqueo de Interfaz
-        if (hudInferior) {
-            hudInferior.style.opacity = '0.4';
-            hudInferior.style.pointerEvents = 'none';
-        }
+// Escuchamos las millas desde la central y calculamos la posición
+onSnapshot(docPartida, (docSnap) => {
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        const millasTotales = data.millas_totales || 0;
         
-        // Sonido de Zarpar
-        reproducirEfecto('sfx-barco-zarpa.mp3');
-
-        // Mover el barco
-        posicionarBarco(true);
-
-        // Desbloquear al llegar a la meta (3 segundos después)
-        setTimeout(() => {
-            if (hudInferior) {
-                hudInferior.style.opacity = '1';
-                hudInferior.style.pointerEvents = 'auto';
+        let nuevoIndice = 0;
+        for (let i = 0; i < rutaIslas.length; i++) {
+            if (millasTotales >= rutaIslas[i].millasRequeridas) {
+                nuevoIndice = i;
             }
-            reproducirEfecto('sfx-isla-llegada.mp3');
-            alert(`¡Tierra a la vista! Hemos llegado a ${rutaIslas[indiceIslaActual].nombre}.`);
-        }, 3000);
+        }
+
+        // Guardamos el índice localmente solo para que retos_motor sepa qué retos filtrar
+        localStorage.setItem('indiceIslaActual', nuevoIndice);
+
+        // Si el índice subió y no es la primera vez que abrimos la app, zarpamos
+        if (nuevoIndice > indiceIslaActual && !primeraCarga) {
+            indiceIslaActual = nuevoIndice;
+            animarViaje();
+        } else if (primeraCarga) {
+            // Posicionamiento estático al cargar la página
+            indiceIslaActual = nuevoIndice;
+            posicionarBarco(false);
+            primeraCarga = false;
+        }
     }
+});
+
+function animarViaje() {
+    if (hudInferior) {
+        hudInferior.style.opacity = '0.4';
+        hudInferior.style.pointerEvents = 'none';
+    }
+    
+    reproducirEfecto('sfx-barco-zarpa.mp3');
+    posicionarBarco(true);
+
+    setTimeout(() => {
+        if (hudInferior) {
+            hudInferior.style.opacity = '1';
+            hudInferior.style.pointerEvents = 'auto';
+        }
+        reproducirEfecto('sfx-isla-llegada.mp3');
+        alert(`¡Tierra a la vista! Hemos llegado a ${rutaIslas[indiceIslaActual].nombre}.`);
+    }, 3000);
 }
+
+// Se mantiene vacía para no romper la importación en retos_motor.js
+export function intentarViajar(misMillasActuales) {}
 
 document.addEventListener('DOMContentLoaded', () => {
     inicializarMapa();

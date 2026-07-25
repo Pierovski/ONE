@@ -1,27 +1,19 @@
-/* ==========================================================================
-   TIPOGRAFÍA Y PALETA ONE PIECE - PIERO OFFICIAL
-   ========================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Lora:ital@0;1&display=swap');
 
 :root {
-    --fondo-blanco-premium: #ffffff; /* Blanco Puro */
-    --fondo-papel: #fdfdfc;         
+    --fondo-papel: #f4f1ea;         
     --celeste-mar: #a2d2ff;         
     --azul-mar-profundo: #0d223d;    
     --rojo-luffy: #ae2012;           
     --marron-tinta: #5a3814;         
     --amarillo-paja: #e5b842;        
-    --cristal-oscuro: rgba(13, 34, 61, 0.65);
-    --cristal-claro: rgba(253, 253, 252, 0.85);
-    --azul-suave-tarjeta: #f0f4f8;
-
+    --cristal-oscuro: rgba(13, 34, 61, 0.5);
+    --cristal-claro: rgba(255, 255, 255, 0.8);
+    
     --fuente-titulos: 'Cinzel', serif; 
     --fuente-cuerpo: 'Lora', serif;   
 }
 
-/* ==========================================================================
-   BASE DEL LIENZO Y FONDOS
-   ========================================================================== */
 body, html { 
     margin: 0; 
     padding: 0; 
@@ -38,99 +30,85 @@ body, html {
     font-family: var(--fuente-cuerpo);
     position: relative;
     overflow-y: auto;
-    text-decoration: none; 
+    overflow-x: hidden;
 }
 
 h2 {
     font-family: var(--fuente-titulos);
-    font-size: 20px;
+    font-size: 22px;
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 2px;
-    margin: 20px 0 10px 0;
+    margin: 25px 0 15px 0;
+    color: var(--azul-mar-profundo);
 }
 
 /* ==========================================================================
-   1. SELECCIÓN DE PERSONAJES (Elegante y Limpio)
+   1. SELECCIÓN DE PERSONAJES
    ========================================================================== */
-#pantalla-personajes {
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-}
+#pantalla-personajes { display: flex; flex-direction: column; }
 
 .subtitulo-seleccion {
-    text-align: center; font-style: italic; font-size: 13px;
-    color: var(--azul-mar-profundo); margin-bottom: 15px; padding: 0 15px;
+    text-align: center; font-style: italic; font-size: 14px;
+    color: var(--marron-tinta); margin-bottom: 20px; padding: 0 15px;
 }
 
 .grid-personajes {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Grilla 2x2 */
-    gap: 15px;
-    padding: 0 20px 20px 20px;
-    max-height: 65vh; 
-    overflow-y: auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+    padding: 0 20px 20px 20px; max-height: 65vh; overflow-y: auto;
 }
 
 .tarjeta-personaje {
-    background-color: var(--fondo-blanco-premium); 
-    background: linear-gradient(135deg, #ffffff, #e6f4ff); 
-    border: 2px solid var(--azul-suave-tarjeta); 
-    border-radius: 12px;
-    padding: 15px 10px;
-    text-align: center;
-    color: var(--marron-tinta);
-    display: flex; flex-direction: column; align-items: center;
-    box-shadow: 0 4px 10px rgba(13, 34, 61, 0.05);
-    transition: all 0.2s ease-in-out;
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 16px; padding: 20px 10px;
+    text-align: center; display: flex; flex-direction: column; align-items: center;
+    box-shadow: 0 8px 20px rgba(13, 34, 61, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
 }
 
+.tarjeta-personaje:active { transform: scale(0.97); }
+
 .img-avatar-seleccion {
-    width: 65px; height: 65px;
-    border-radius: 50%;
-    border: 2px solid var(--amarillo-paja); 
-    object-fit: cover;
-    margin-bottom: 10px;
-    background-color: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 70px; height: 70px; border-radius: 50%;
+    border: 3px solid var(--fondo-papel); 
+    object-fit: cover; margin-bottom: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .tarjeta-personaje h4 {
-    font-family: var(--fuente-titulos);
-    color: var(--azul-mar-profundo); 
-    font-size: 13px; margin: 0 0 5px 0;
-    text-transform: uppercase;
+    font-family: var(--fuente-titulos); font-size: 14px; 
+    margin: 0 0 8px 0; color: var(--azul-mar-profundo); font-weight: 700;
 }
 
 .tarjeta-personaje p {
-    font-size: 10px; color: var(--marron-tinta); line-height: 1.3; margin: 0;
-    font-style: normal;
+    font-size: 11px; color: #555; line-height: 1.4; margin: 0;
 }
 
 .tarjeta-personaje.seleccionado {
-    border-color: var(--amarillo-paja); 
-    box-shadow: 0 0 15px rgba(229, 184, 66, 0.4);
-    transform: translateY(-3px) scale(1.03); 
+    border: 2px solid var(--amarillo-paja); 
+    box-shadow: 0 10px 25px rgba(229, 184, 66, 0.3);
+    transform: translateY(-5px); 
 }
 
 /* ==========================================================================
-   2. EL MAPA PROTAGONISTA (Full Screen)
+   2. MAPA PROTAGONISTA
    ========================================================================== */
 .mapa-interactivo {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background-image: url('assets/img/mapa-base.jpg');
-    background-size: cover; background-position: center; background-repeat: no-repeat;
+    background-size: cover; background-position: center; 
     z-index: 1;
 }
 
 #barco-jugador {
-    position: absolute; width: 45px; height: 45px; z-index: 2;
-    transition: all 0.8s ease-in-out; transform: translate(-50%, -50%);
+    position: absolute; width: 50px; height: 50px; z-index: 2;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0px 8px 10px rgba(0,0,0,0.4));
 }
 
 /* ==========================================================================
-   3. HUD FLOTANTE (Botones y Billetera transparentes)
+   3. HUD FLOTANTE (Efecto Cristal Premium)
    ========================================================================== */
 .hud-superior {
     position: fixed; top: env(safe-area-inset-top, 20px);
@@ -139,103 +117,103 @@ h2 {
 }
 
 .avatar-flotante img {
-    width: 50px; height: 50px; border-radius: 50%;
-    border: 2px solid var(--amarillo-paja); background-color: #fff; object-fit: cover;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3); pointer-events: auto;
+    width: 55px; height: 55px; border-radius: 50%;
+    border: 2px solid var(--amarillo-paja); background-color: #fff; 
+    object-fit: cover; box-shadow: 0 6px 15px rgba(0,0,0,0.3); pointer-events: auto;
 }
 
 .billetera-flotante {
-    background-color: var(--cristal-oscuro);
-    backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-    padding: 8px 15px; border-radius: 20px;
-    border: 1px solid var(--amarillo-paja);
-    font-weight: bold; font-size: 14px; 
+    background: var(--cristal-oscuro);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    padding: 10px 18px; border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-family: var(--fuente-titulos); font-weight: bold; font-size: 15px; 
     color: var(--amarillo-paja);
-    display: flex; align-items: center; gap: 5px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3); pointer-events: auto;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3); pointer-events: auto;
 }
 
 .hud-inferior {
-    position: fixed; bottom: env(safe-area-inset-bottom, 20px);
+    position: fixed; bottom: env(safe-area-inset-bottom, 25px);
     left: 15px; right: 15px; z-index: 10;
-    display: flex; align-items: flex-end; justify-content: center; gap: 20px; pointer-events: none;
+    display: flex; align-items: flex-end; justify-content: center; gap: 25px; pointer-events: none;
 }
 
-/* Botones del HUD */
 .boton-circular-hud {
-    width: 50px; height: 50px; border-radius: 50%;
-    background-color: var(--cristal-oscuro);
-    border: 2px solid var(--celeste-mar);
-    color: #fff; font-size: 20px;
+    width: 55px; height: 55px; border-radius: 50%;
+    background: var(--cristal-oscuro);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; font-size: 22px;
     display: flex; justify-content: center; align-items: center;
-    cursor: pointer; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-    pointer-events: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    pointer-events: auto; box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
 }
+.boton-circular-hud:active { transform: scale(0.92); }
 
 .boton-circular-hud.principal {
-    width: 65px; height: 65px; font-size: 32px;
-    background-color: var(--cristal-claro);
+    width: 75px; height: 75px; font-size: 36px;
+    background: rgba(255, 255, 255, 0.9);
     border: 3px solid var(--rojo-luffy);
-    transform: translateY(-10px);
-    box-shadow: 0 6px 15px rgba(174, 32, 18, 0.4);
+    transform: translateY(-15px);
+    box-shadow: 0 10px 25px rgba(174, 32, 18, 0.4);
+    color: var(--rojo-luffy);
 }
-.boton-circular-hud.principal:active { transform: translateY(-10px) scale(0.95); }
+.boton-circular-hud.principal:active { transform: translateY(-15px) scale(0.92); }
 
-/* Mini Botón Caché */
 .boton-circular-mini {
-    width: 38px; height: 38px; border-radius: 50%;
-    background-color: var(--cristal-oscuro);
-    border: 1px solid var(--celeste-mar);
+    width: 42px; height: 42px; border-radius: 50%;
+    background: var(--cristal-oscuro);
+    border: 1px solid rgba(255,255,255,0.2);
     color: #fff; font-size: 18px; display: flex; justify-content: center; align-items: center;
-    cursor: pointer; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3); pointer-events: auto;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3); pointer-events: auto;
 }
 
 /* ==========================================================================
-   4. MERCADO CLANDESTINO (Grilla de Tarjetas)
+   4. MERCADO CLANDESTINO
    ========================================================================== */
-#pantalla-mercado { padding: 15px; background-color: var(--fondo-papel); }
+#pantalla-mercado { padding: 20px; }
 
 .cabecera-mercado {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
 }
 
 .boton-secundario {
     background: none; border: none; font-size: 14px;
-    color: var(--azul-mar-profundo); font-weight: bold;
-    text-decoration: none; cursor: pointer; text-transform: uppercase;
+    color: var(--azul-mar-profundo); font-family: var(--fuente-titulos); font-weight: bold;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
 }
 
 .contenedor-frutas {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 15px; padding-bottom: 40px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-bottom: 40px;
 }
 
 .tarjeta-fruta {
-    background: #fff; border: 1px solid var(--azul-suave-tarjeta); border-radius: 12px;
-    padding: 15px 10px; display: flex; flex-direction: column; align-items: center; text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    background: #fff; border-radius: 16px;
+    padding: 20px 12px; display: flex; flex-direction: column; align-items: center; text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.03);
 }
 
-.img-fruta-mercado { width: 60px !important; height: 60px !important; object-fit: contain; margin-bottom: 10px;}
-.tarjeta-fruta h4 { font-family: var(--fuente-titulos); font-size: 13px; margin: 0 0 5px 0; color: var(--azul-mar-profundo); }
-.tarjeta-fruta p { font-size: 10px; color: var(--marron-tinta); margin-bottom: 10px; }
+.img-fruta-mercado { width: 65px !important; height: 65px !important; object-fit: contain; margin-bottom: 15px;}
+.tarjeta-fruta h4 { font-family: var(--fuente-titulos); font-size: 14px; margin: 0 0 8px 0; color: var(--rojo-luffy); }
+.tarjeta-fruta p { font-size: 11px; color: #555; margin-bottom: 15px; line-height: 1.4; }
 
 .boton-dorado {
-    background-color: var(--amarillo-paja); color: var(--azul-mar-profundo);
-    font-family: var(--fuente-titulos); font-weight: bold; font-size: 12px;
-    padding: 8px 15px; border: 1px solid var(--marron-tinta); border-radius: 8px;
-    text-decoration: none; text-align: center; cursor: pointer;
+    background: linear-gradient(135deg, #e5b842 0%, #d1a435 100%);
+    color: #0d223d; font-family: var(--fuente-titulos); font-weight: bold; font-size: 12px;
+    padding: 10px 15px; border: none; border-radius: 8px; width: 100%;
+    cursor: pointer; box-shadow: 0 4px 10px rgba(229, 184, 66, 0.3);
 }
 
 /* ==========================================================================
-   5. MODAL DE DESAFÍOS (El Cartel de Se Busca)
+   5. MODALES (Desafíos y Bitácora)
    ========================================================================== */
 .modal-oculto {
     display: none; position: fixed; 
     top: 0; left: 0; width: 100vw; height: 100vh;
-    background-color: rgba(13, 34, 61, 0.8);
-    backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+    background: rgba(13, 34, 61, 0.7);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     z-index: 9999; justify-content: center; align-items: center;
 }
 
@@ -243,58 +221,53 @@ h2 {
     background-color: var(--fondo-papel);
     background-image: url('assets/img/pergamino.png'); 
     background-size: cover; background-position: center;
-    width: 85%; max-width: 340px; padding: 25px; 
-    border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-    text-align: center; border: 2px solid var(--marron-tinta);
+    width: 85%; max-width: 350px; padding: 30px 25px; 
+    border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    text-align: center; border: 1px solid rgba(255,255,255,0.4);
 }
 
 .modal-pergamino h3 { 
     font-family: var(--fuente-titulos); color: var(--rojo-luffy); 
-    font-size: 18px; margin-top: 0; border-bottom: 2px solid var(--marron-tinta); 
-    padding-bottom: 10px; text-transform: uppercase;
+    font-size: 20px; margin-top: 0; border-bottom: 2px solid rgba(90, 56, 20, 0.2); 
+    padding-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;
 }
 
 .modal-pergamino p { 
-    font-size: 14px; color: var(--azul-mar-profundo); 
-    line-height: 1.5; margin-bottom: 20px; font-weight: bold;
+    font-size: 15px; color: var(--azul-mar-profundo); 
+    line-height: 1.6; margin-bottom: 25px;
 }
 
 .modal-datos { 
     display: flex; justify-content: space-around; 
-    margin-bottom: 20px; font-weight: bold; 
-    font-size: 13px; color: var(--marron-tinta); 
+    margin-bottom: 25px; font-weight: bold; 
+    font-size: 14px; color: var(--marron-tinta); 
+    background: rgba(255,255,255,0.5); padding: 10px; border-radius: 8px;
 }
 
-.modal-botones { display: flex; gap: 10px; justify-content: center; }
+.modal-botones { display: flex; gap: 12px; justify-content: center; }
+.modal-botones button { flex: 1; margin: 0; }
+.modal-botones .boton-secundario { 
+    background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; 
+}
+
+.efecto-rayo { animation: flashBlanco 0.5s ease-out; }
+@keyframes flashBlanco { 0% { background-color: #fff; opacity: 1; } 100% { background-color: transparent; opacity: 0; } }
 
 /* ==========================================================================
-   ANIMACIONES GLOBALES
-   ========================================================================== */
-.efecto-rayo { animation: flashBlanco 0.4s ease-out; }
-@keyframes flashBlanco { 0% { background-color: #fff; opacity: 1; } 100% { background-color: transparent; opacity: 0; } }
-/* ==========================================================================
-   6. BITÁCORA DE VIAJE (HISTORIAL)
+   6. BITÁCORA DE VIAJE
    ========================================================================== */
 .item-historial {
-    background-color: rgba(255, 255, 255, 0.6);
-    border-left: 3px solid var(--amarillo-paja);
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    background: #fff; border-left: 4px solid var(--amarillo-paja);
+    padding: 12px 15px; border-radius: 8px; margin-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
 }
 
 .item-historial h4 {
-    font-family: var(--fuente-titulos);
-    color: var(--azul-mar-profundo);
-    font-size: 13px;
-    margin: 0 0 5px 0;
+    font-family: var(--fuente-titulos); color: var(--azul-mar-profundo);
+    font-size: 14px; margin: 0 0 6px 0;
 }
 
 .item-historial .datos-extra {
-    display: flex;
-    justify-content: space-between;
-    font-size: 10px;
-    color: var(--marron-tinta);
-    font-weight: bold;
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: #777; font-weight: bold;
 }

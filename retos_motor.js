@@ -1,10 +1,11 @@
 import { reproducirEfecto } from './audio_motor.js';
-import { intentarViajar } from './mapa_motor.js'; 
+import { intentarViajar, rutaIslas } from './mapa_motor.js'; 
+import { docPartida } from './firebase_motor.js';
+import { onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 const btnVerReto = document.getElementById('btn-ver-reto');
 const contadoresBerries = document.querySelectorAll('#contador-berries, #mercado-contador-berries');
 
-// Elementos del Modal
 const modalDesafio = document.getElementById('modal-desafio');
 const modalTitulo = document.getElementById('modal-titulo');
 const modalDescripcion = document.getElementById('modal-descripcion');
@@ -13,109 +14,148 @@ const modalRecompensa = document.getElementById('modal-recompensa');
 const btnModalCancelar = document.getElementById('btn-modal-cancelar');
 const btnModalAceptar = document.getElementById('btn-modal-aceptar');
 
-let retosDisponibles = [];
-let retoElegidoActual = null;
+let retosTotales = [];
+let miId = localStorage.getItem('personajeTripulacion'); // Ej: 'luffy', 'zoro'
+let estadoNube = null; // Guardará el estado en tiempo real
 
-// Memoria Económica y de Progreso
-let misBerries = parseInt(localStorage.getItem('misBerries')) || 500;
-let misMillas = parseInt(localStorage.getItem('misMillas')) || 0; 
-actualizarPantallaBerries();
-
+// 1. CARGAMOS EL CATÁLOGO DE RETOS
 async function cargarRetos() {
     try {
         const respuesta = await fetch('retos_nivel_1.json');
-        retosDisponibles = await respuesta.json();
-        prepararSiguienteReto();
+        retosTotales = await respuesta.json();
     } catch (error) {
-        console.error("La Marina interceptó el mapa:", error);
+        console.error("Fallo al leer los mapas:", error);
     }
 }
 
+// 2. ESCUCHAMOS LA BASE DE DATOS EN TIEMPO REAL
+onSnapshot(docPartida, (docSnap) => {
+    if (docSnap.exists()) {
+        estadoNube = docSnap.data();
+        sincronizarInterfaz();
+    }
+});
+
+// 3. ACTUALIZAMOS LA PANTALLA SEGÚN LO QUE DIGA LA NUBE
+function sincronizarInterfaz() {
+    if (!estadoNube) return;
+
+    // Actualizamos billetera
+    let misBerries = estadoNube[`berries_${miId}`] || 0;
+    contadoresBerries.forEach(c => c.innerText = misBerries);
+
+    const estado = estadoNube.estado_reto;
+    const turno = estadoNube.turno_de;
+
+    if (estado === "inactivo") {
+        btnVerReto.innerHTML = "🎯";
+        btnVerReto.style.borderColor = "var(--rojo-luffy)";
+        btnVerReto.onclick = () => prepararSiguienteReto();
+    } 
+    else if (estado === "en_progreso") {
+        if (turno === miId) {
+            btnVerReto.innerHTML = "📤"; 
+            btnVerReto.style.borderColor = "#e5b842";
+            btnVerReto.onclick = () => marcarComoPendiente();
+        } else {
+            btnVerReto.innerHTML = "⏳"; 
+            btnVerReto.style.borderColor = "var(--marron-tinta)";
+            btnVerReto.onclick = () => alert("Tu pareja está realizando su reto...");
+        }
+    } 
+    else if (estado === "pendiente_validacion") {
+        if (turno === miId) {
+            btnVerReto.innerHTML = "👀";
+            btnVerReto.style.borderColor = "var(--marron-tinta)";
+            btnVerReto.onclick = () => alert("Esperando a que tu pareja valide tu prueba...");
+        } else {
+            btnVerReto.innerHTML = "✅"; 
+            btnVerReto.style.borderColor = "#2e7d32";
+            btnVerReto.onclick = () => validarRetoNube();
+        }
+    }
+}
+
+// 4. LÓGICA DE ACEPTAR UN RETO NUEVO
 function prepararSiguienteReto() {
-    if (retosDisponibles.length === 0) {
-        btnVerReto.style.display = 'none'; 
+    let indiceIsla = parseInt(localStorage.getItem('indiceIslaActual')) || 0;
+    let nombreIslaActual = rutaIslas[indiceIsla].nombre;
+    let completados = estadoNube.retos_completados || [];
+
+    let disponibles = retosTotales.filter(r => !completados.includes(r.id) && r.isla === nombreIslaActual);
+
+    if (disponibles.length === 0) {
+        alert("La marea está tranquila por aquí. ¡Viajen a la siguiente isla!");
         return;
     }
 
-    const indiceAleatorio = Math.floor(Math.random() * retosDisponibles.length);
-    retoElegidoActual = retosDisponibles[indiceAleatorio];
-
-    // Estado 1: Reto sin abrir (Icono 🎯)
-    btnVerReto.innerHTML = "🎯";
-    btnVerReto.style.borderColor = "var(--rojo-luffy)";
-    btnVerReto.onclick = () => mostrarDetallesReto();
+    const retoAleatorio = disponibles[Math.floor(Math.random() * disponibles.length)];
+    mostrarDetallesReto(retoAleatorio);
 }
 
-function mostrarDetallesReto() {
-    modalTitulo.innerText = retoElegidoActual.titulo;
-    modalDescripcion.innerText = retoElegidoActual.descripcion;
-    modalTiempo.innerText = `⏳ ${retoElegidoActual.tiempo_limite_minutos} min`;
-    modalRecompensa.innerText = `💰 ${retoElegidoActual.recompensa_berries} Berries | ⛵ +${retoElegidoActual.recompensa_millas} Millas`;
+function mostrarDetallesReto(reto) {
+    modalTitulo.innerText = reto.titulo;
+    modalDescripcion.innerText = reto.descripcion;
+    modalTiempo.innerText = `⏳ ${reto.tiempo_limite_minutos} min`;
+    modalRecompensa.innerText = `💰 ${reto.recompensa_berries} Berries | ⛵ +${reto.recompensa_millas} Millas`;
     
+    btnModalAceptar.disabled = false;
     modalDesafio.style.display = 'flex';
 
-    btnModalCancelar.onclick = () => {
-        modalDesafio.style.display = 'none'; 
-    };
+    btnModalCancelar.onclick = () => { modalDesafio.style.display = 'none'; };
 
-    btnModalAceptar.onclick = () => {
+    btnModalAceptar.onclick = async () => {
+        btnModalAceptar.disabled = true;
         modalDesafio.style.display = 'none'; 
         reproducirEfecto('sfx-reto-aceptado.mp3');
         
-        // --- EL DEN DEN MUSHI (INTEGRACIÓN WHATSAPP) ---
-        const mensajeTexto = `¡Capitán! Acabo de anclar en ${retoElegidoActual.isla} y he aceptado el reto: 🎯 *${retoElegidoActual.titulo}*.\n\nTienes ${retoElegidoActual.tiempo_limite_minutos} minutos para prepararte. ¿Estás lista?`;
-        const mensajeCodificado = encodeURIComponent(mensajeTexto);
-        window.open(`https://wa.me/?text=${mensajeCodificado}`, '_blank');
-        
-        // Estado 2: Reto en proceso (Icono ✅)
-        btnVerReto.innerHTML = "✅";
-        btnVerReto.style.borderColor = "#2e7d32"; 
-        btnVerReto.onclick = () => validarRetoCompletado();
+        // Avisamos a la nube que tomamos el reto
+        await updateDoc(docPartida, {
+            estado_reto: "en_progreso",
+            turno_de: miId,
+            reto_activo: reto
+        });
+
+        const msj = `¡Capitán! He aceptado el reto: 🎯 *${reto.titulo}*.\nTienes ${reto.tiempo_limite_minutos} min. ¿Estás lista?`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(msj)}`, '_blank');
     };
 }
 
-function validarRetoCompletado() {
-    // 1. Sumamos recompensas
-    misBerries += retoElegidoActual.recompensa_berries;
-    misMillas += retoElegidoActual.recompensa_millas;
-    
-    localStorage.setItem('misBerries', misBerries);
-    localStorage.setItem('misMillas', misMillas);
-    
-    // 2. Guardamos el recuerdo en la Bitácora Historial
-    let historial = JSON.parse(localStorage.getItem('historialRetos')) || [];
-    historial.unshift({
-        titulo: retoElegidoActual.titulo,
-        fecha: new Date().toLocaleDateString('es-PE'), 
-        berries: retoElegidoActual.recompensa_berries
+// 5. AVISAR QUE YA SE ENVIÓ LA PRUEBA
+async function marcarComoPendiente() {
+    btnVerReto.onclick = null; // Freno anti-spam
+    await updateDoc(docPartida, {
+        estado_reto: "pendiente_validacion"
     });
-    localStorage.setItem('historialRetos', JSON.stringify(historial));
-    
-    // 3. Actualizamos la interfaz
-    actualizarPantallaBerries();
+}
+
+// 6. VALIDAR LA PRUEBA DE LA PAREJA Y PAGAR
+async function validarRetoNube() {
+    btnVerReto.onclick = null; // Freno anti-spam
+    const retoActivo = estadoNube.reto_activo;
+    const turno = estadoNube.turno_de; // Quien hizo el reto
+
+    let completados = estadoNube.retos_completados || [];
+    completados.push(retoActivo.id);
+
+    let nuevasMillas = (estadoNube.millas_totales || 0) + retoActivo.recompensa_millas;
+    let berriesActuales = estadoNube[`berries_${turno}`] || 0;
+
+    // Reseteamos el tablero y pagamos
+    await updateDoc(docPartida, {
+        estado_reto: "inactivo",
+        turno_de: null,
+        reto_activo: null,
+        retos_completados: completados,
+        millas_totales: nuevasMillas,
+        [`berries_${turno}`]: berriesActuales + retoActivo.recompensa_berries
+    });
+
     reproducirEfecto('sfx-berries.mp3');
     
-    retosDisponibles = retosDisponibles.filter(r => r.id !== retoElegidoActual.id);
-    window.dispatchEvent(new Event('berriesActualizados'));
-    
-    // Estado 3: Reto superado (Icono ✨)
-    btnVerReto.innerHTML = "✨";
-    
-    // 4. Revisamos si con estas millas podemos viajar
     setTimeout(() => {
-        intentarViajar(misMillas); 
-        prepararSiguienteReto();
+        intentarViajar(nuevasMillas); 
     }, 1000);
 }
-
-function actualizarPantallaBerries() {
-    contadoresBerries.forEach(contador => contador.innerText = misBerries);
-}
-
-// Escuchamos si compran frutas en el mercado para restar dinero
-window.addEventListener('berriesActualizados', () => {
-    misBerries = parseInt(localStorage.getItem('misBerries')) || 0;
-    actualizarPantallaBerries();
-});
 
 cargarRetos();

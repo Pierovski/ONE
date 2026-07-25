@@ -1,4 +1,6 @@
 import { cambiarMusicaFondo, reproducirEfecto } from './audio_motor.js';
+import { docPartida } from './firebase_motor.js';
+import { onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 const pantallaJuego = document.getElementById('pantalla-juego');
 const pantallaMercado = document.getElementById('pantalla-mercado');
@@ -7,8 +9,17 @@ const btnCerrarMercado = document.getElementById('btn-cerrar-mercado');
 const listaFrutas = document.getElementById('lista-frutas');
 
 const contadoresBerries = document.querySelectorAll('#contador-berries, #mercado-contador-berries');
-let misBerries = parseInt(localStorage.getItem('misBerries')) || 500; 
-actualizarPantallaBerries();
+let miId = localStorage.getItem('personajeTripulacion');
+let misBerriesNube = 0;
+
+// 1. ESCUCHAMOS LA BILLETERA EN LA NUBE
+onSnapshot(docPartida, (docSnap) => {
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        misBerriesNube = data[`berries_${miId}`] || 0;
+        actualizarPantallaBerries();
+    }
+});
 
 btnAbrirMercado.addEventListener('click', () => {
     pantallaJuego.style.display = 'none';
@@ -50,38 +61,37 @@ function renderizarFrutas(frutas) {
         listaFrutas.appendChild(tarjeta);
     });
 
+    // Asignamos el evento de compra a cada botón
     document.querySelectorAll('.btn-comprar').forEach(boton => {
         boton.addEventListener('click', (e) => {
             const precio = parseInt(e.target.getAttribute('data-precio'));
             const nombre = e.target.getAttribute('data-nombre');
-            ejecutarCompra(nombre, precio);
+            ejecutarCompra(nombre, precio, e.target);
         });
     });
 }
 
-function ejecutarCompra(nombre, precio) {
-    if (misBerries >= precio) {
-        misBerries -= precio; 
-        localStorage.setItem('misBerries', misBerries); 
-        actualizarPantallaBerries();
-        
-        reproducirEfecto('sfx-fruta-comprada.mp3');
-        
-        // SINCRONIZACIÓN: Avisamos a retos_motor de la compra
-        window.dispatchEvent(new Event('berriesActualizados'));
-        
-        alert(`¡Pacto sellado! Has adquirido la ${nombre}.`);
+async function ejecutarCompra(nombre, precio, botonHtml) {
+    if (misBerriesNube >= precio) {
+        botonHtml.disabled = true; // Freno anti-spam
+        try {
+            // Descontamos el dinero directamente en la base de datos
+            await updateDoc(docPartida, {
+                [`berries_${miId}`]: increment(-precio)
+            });
+            
+            reproducirEfecto('sfx-fruta-comprada.mp3');
+            alert(`¡Pacto sellado! Has adquirido la ${nombre}.`);
+        } catch(e) {
+            alert("Hubo un error de conexión con la red de contrabando.");
+        } finally {
+            botonHtml.disabled = false; // Liberamos el botón
+        }
     } else {
         alert('Fondos insuficientes.');
     }
 }
 
 function actualizarPantallaBerries() {
-    contadoresBerries.forEach(contador => contador.innerText = misBerries);
+    contadoresBerries.forEach(contador => contador.innerText = misBerriesNube);
 }
-
-// SINCRONIZACIÓN: Escuchamos si ganamos dinero en los retos
-window.addEventListener('berriesActualizados', () => {
-    misBerries = parseInt(localStorage.getItem('misBerries')) || 0;
-    actualizarPantallaBerries();
-});
