@@ -1,51 +1,38 @@
-/**
- * AUDIO MOTOR - GRAND LINE HEARTS
- * Gestión de ambientes musicales y efectos de sonido de One Piece.
- */
+const btnHistorial = document.getElementById('btn-historial');
+const modalHistorial = document.getElementById('modal-historial');
+const btnCerrarHistorial = document.getElementById('btn-cerrar-historial');
+const listaHistorial = document.getElementById('lista-historial');
 
-// Repositorio de instancias de audio
-const pistasFondo = {
-    mapa: new Audio('assets/audio/musica-mapa.mp3'),
-    mercado: new Audio('assets/audio/musica-mercado.mp3')
-};
+// Abrir la bitácora
+btnHistorial.addEventListener('click', () => {
+    renderizarHistorial();
+    modalHistorial.style.display = 'flex';
+});
 
-// Configuramos los bucles de la música de fondo
-pistasFondo.mapa.loop = true;
-pistasFondo.mercado.loop = true;
-pistasFondo.mapa.volume = 0.4;
-pistasFondo.mercado.volume = 0.4;
+// Cerrar la bitácora
+btnCerrarHistorial.addEventListener('click', () => {
+    modalHistorial.style.display = 'none';
+});
 
-let pistaActiva = null;
+function renderizarHistorial() {
+    const historial = JSON.parse(localStorage.getItem('historialRetos')) || [];
+    listaHistorial.innerHTML = '';
 
-// 1. DESBLOQUEO CRUCIAL PARA MÓVILES
-// Esta función despierta el motor de audio tras el primer toque físico del usuario
-export function inicializarAudioSeguro() {
-    // Tocamos y pausamos instantáneamente los audios en silencio absoluto
-    Object.values(pistasFondo).forEach(audio => {
-        audio.play().then(() => {
-            audio.pause();
-        }).catch(e => console.log("Audio esperando interacción activa."));
+    if (historial.length === 0) {
+        listaHistorial.innerHTML = '<p style="text-align:center; font-style:italic; font-size: 13px; color: #5a3814;">La bitácora está en blanco. ¡Sal a conquistar el mar!</p>';
+        return;
+    }
+
+    historial.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'item-historial';
+        div.innerHTML = `
+            <h4>${item.titulo}</h4>
+            <div class="datos-extra">
+                <span>🗓️ ${item.fecha}</span>
+                <span>💰 +${item.berries} Berries</span>
+            </div>
+        `;
+        listaHistorial.appendChild(div);
     });
-}
-
-// 2. CONTROLADOR DE MÚSICA DE FONDO (CON TRANSICIÓN LIMPIA)
-export function cambiarMusicaFondo(nombrePista) {
-    if (pistaActiva) {
-        pistasFondo[pistaActiva].pause();
-        pistasFondo[pistaActiva].currentTime = 0;
-    }
-
-    if (pistasFondo[nombrePista]) {
-        pistasFondo[nombrePista].play().catch(() => {
-            console.log("Auto-play bloqueado temporalmente por el navegador.");
-        });
-        pistaActiva = nombrePista;
-    }
-}
-
-// 3. REPRODUCTOR DE EFECTOS DE SONIDO (DISPARO INSTANTÁNEO)
-export function reproducirEfecto(nombreArchivo) {
-    const sfx = new Audio(`assets/audio/${nombreArchivo}`);
-    sfx.volume = 0.7;
-    sfx.play().catch(e => console.log("Efecto de sonido bloqueado:", e));
 }
